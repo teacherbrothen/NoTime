@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kinematics Equation Solver - Complete Module</title>
@@ -18,8 +19,8 @@
             background-color: #f1f5f9;
             color: #1e293b;
             display: flex;
-            flex-direction: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
             justify-content: center;
             min-height: 98vh;
             margin: 0;
@@ -27,6 +28,7 @@
         }
 
         .container {
+            position: relative;
             background-color: #ffffff;
             padding: 36px 40px;
             border-radius: 20px;
@@ -34,6 +36,19 @@
             text-align: center;
             max-width: 760px;
             width: 100%;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sim-id-badge {
+            position: absolute;
+            top: 16px;
+            right: 24px;
+            font-size: 0.8rem;
+            font-family: monospace;
+            color: #94a3b8;
+            background-color: #f8fafc;
+            padding: 3px 8px;
+            border-radius: 6px;
             border: 1px solid #e2e8f0;
         }
 
@@ -154,7 +169,6 @@
             flex-wrap: wrap;
         }
 
-        /* Prevents uppercase CSS rule from changing math variable casing */
         .action-label .katex {
             text-transform: none !important;
             font-size: 1.15rem;
@@ -268,14 +282,36 @@
             box-shadow: none;
         }
     </style>
-</head><body><div class="container">
-<h2>Kinematics Equation Solver</h2>
-<p id="instruction-text" class="instructions">Choose the target variable you want to isolate.</p>
-<div id="equation-container" class="equation-box"></div>
-<div id="dynamic-panel" class="action-panel"></div>
-<div id="feedback"></div>
-<button class="reset-btn" onclick="resetToLanding()">Start Over</button></div>
-<p><script>
+</head>
+<body>
+
+<div class="container">
+    <div id="sim-id" class="sim-id-badge"></div>
+    <h2>Kinematics Equation Solver</h2>
+    <p id="instruction-text" class="instructions">Choose the target variable you want to isolate.</p>
+    
+    <div id="equation-container" class="equation-box"></div>
+    <div id="dynamic-panel" class="action-panel"></div>
+
+    <div id="feedback"></div>
+    <button class="reset-btn" onclick="resetToLanding()">Start Over</button>
+</div>
+
+<script>
+    // ID Generator Function (4 Random Digits + MM + DD + Y)
+    function generateSimID() {
+        const d = new Date();
+        const random4 = Math.floor(1000 + Math.random() * 9000);
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        const yearLastDigit = String(d.getFullYear()).slice(-1);
+
+        return `${random4}${month}${day}${yearLastDigit}`;
+    }
+
+    // Set the ID badge on initial load
+    document.getElementById('sim-id').innerText = "ID: " + generateSimID();
+
     let currentMode = 'landing';
     let state = 0; 
     let selectedElementId = null;
@@ -285,7 +321,6 @@
     const eqContainer = document.getElementById('equation-container');
     const instructionText = document.getElementById('instruction-text');
 
-    // Helper to render KaTeX safely inside HTML templates
     function kRender(latex, sizeStyle = '') {
         try {
             const rendered = katex.renderToString(latex, { throwOnError: false });
@@ -298,7 +333,6 @@
         }
     }
 
-    // UI Renderers via KaTeX
     const txtV2Sq = () => kRender('v_2^2');
     const txtV2   = () => kRender('v_2');
     const txtV1Sq = () => kRender('v_1^2');
@@ -307,7 +341,6 @@
     const txtA    = () => kRender('a');
     const txtD    = () => kRender('d');
 
-    // Helper to identify active selection expression LaTeX for student reminder headers
     function getActiveSelectionKaTeX() {
         switch (selectedElementId) {
             case 'v2_sq':
@@ -331,7 +364,6 @@
         feedback.innerHTML = "";
         feedback.className = "";
 
-        // LANDING DASHBOARD
         if (currentMode === 'landing') {
             instructionText.innerHTML = `Choose a variable to isolate from the baseline kinematics equation.`;
             eqContainer.innerHTML = kRender('v_2^2 = v_1^2 + 2ad', '3.2rem');
@@ -345,7 +377,6 @@
             return;
         }
 
-        // --- GLOBAL EQUATION STATES ---
         if (state < 3) {
             eqContainer.innerHTML = `
                 <div class="side"><span class="var ${selectedElementId === 'v2_sq' ? 'selected' : ''}" onclick="selectElement('v2_sq')">${txtV2Sq()}</span></div>
@@ -481,7 +512,6 @@
         }
     }
 
-    // --- SELECTION ENGINE & ROUTING LOGIC ---
     function selectElement(id) {
         if (state === 5) return;
         selectedElementId = id;
@@ -522,7 +552,6 @@
     }
 
     function handleOpClick(op) {
-        // Left hand side interactions from start state
         if (selectedElementId === 'v2_sq') {
             if (op === 'root') {
                 if (currentMode === 'v2') { advanceState(5); } 
@@ -531,7 +560,6 @@
             return;
         }
 
-        // Left hand side or isolated configurations in intermediate state 
         if (selectedElementId === 'lhs_v1_inter' || selectedElementId === 'v1_sq_iso') {
             if (op === 'root') { advanceState(5); } 
             else { showError("Select the opposite operation."); }
@@ -544,7 +572,6 @@
             return;
         }
 
-        // Standard RHS derivations
         if (op === 'subtract') {
             if (currentMode === 'v1' || currentMode === 'a' || currentMode === 'd') { advanceState(3); } 
             else { showError("Select the opposite operation."); }
@@ -585,4 +612,6 @@
     }
 
     render();
-</script></p></body></html>
+</script>
+</body>
+</html>

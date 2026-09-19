@@ -3,38 +3,784 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kinematics Equation Solver - Complete Module</title>
+    <title>Kinematics Algebra Playground - Equation 5</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     
-    <!-- KaTeX CSS & JS Engine -->
+    <!-- KaTeX CDN -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             color: #1e293b;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: flex-start;
             min-height: 98vh;
             margin: 0;
             padding: 20px;
         }
 
-        .container {
-            position: relative;
+        .slide-container {
             background-color: #ffffff;
-            padding: 36px 40px;
-            border-radius: 20px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+            display: flex;
+            flex-direction: column;
+            padding: 28px 24px;
+            position: relative;
+            max-width: 620px;
+            width: 100%;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sim-id-badge {
+            position: absolute;
+            top: 14px;
+            right: 20px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            color: #94a3b8;
+            background-color: #f8fafc;
+            padding: 3px 8px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .controls-group {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background-color: #f1f5f9;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 10px;
+            color: #475569;
+            cursor: pointer;
+            font-family: 'Lato', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 7px 12px;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+        .control-btn:hover:not(:disabled) {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            border-color: #94a3b8;
+            transform: translateY(-1px);
+        }
+        .control-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        h2.slide-title {
+            color: #1e293b;
+            font-family: 'Poppins', sans-serif;
+            font-size: 21px;
+            font-weight: 700;
+            margin: 0;
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .instructions {
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 12px 0 8px 0;
             text-align: center;
-            max-width: 760px;
+        }
+
+        /* Banners */
+        .banner {
+            padding: 11px 15px;
+            border-radius: 12px;
+            font-size: 13.5px;
+            line-height: 1.5;
+            text-align: center;
+            margin-bottom: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .isolated-banner {
+            background-color: #dcfce7;
+            border: 1.5px solid #86efac;
+            color: #166534;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .info-banner {
+            background-color: #eff6ff;
+            border: 1.5px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .equation-box {
+            align-items: center;
+            display: flex;
+            font-size: 34px;
+            min-height: 110px;
+            justify-content: center;
+            margin: 5px 0 16px 0;
+            user-select: none;
+            color: #0f172a;
+            flex-wrap: wrap;
+            background: #fafafa;
+            border-radius: 16px;
+            border: 1px solid #f1f5f9;
+            padding: 12px;
+            gap: 4px;
+        }
+
+        .side { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 0 4px; 
+            vertical-align: middle;
+            flex-wrap: wrap;
+        }
+
+        .clickable-block {
+            align-items: center;
+            border-radius: 10px;
+            border: 2px dashed #cbd5e1;
+            background-color: #ffffff;
+            cursor: pointer;
+            display: inline-flex;
+            padding: 4px 8px;
+            margin: 2px 3px;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .clickable-block:hover { 
+            background-color: #eef2ff; 
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+        
+        .selected { 
+            background-color: #4f46e5 !important; 
+            border: 2px solid #4338ca !important;
+            color: #ffffff !important; 
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+        }
+        .selected .katex { color: #ffffff !important; }
+
+        .sign { margin: 0 4px; font-weight: 600; font-family: 'Poppins', sans-serif; color: #64748b; font-size: 24px; }
+        .equals { margin: 0 8px; font-weight: 400; font-family: 'Poppins', sans-serif; color: #334155; font-size: 30px; }
+
+        .action-panel {
+            align-items: center;
+            background-color: #f8fafc;
+            border-radius: 18px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            margin: 0 auto;
+            min-height: 180px;
+            padding: 18px 16px;
+            width: 100%;
+        }
+
+        .action-label {
+            color: #475569;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.8px;
+            margin-bottom: 12px;
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .action-label .katex { text-transform: none !important; }
+
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 9px;
+            width: 100%;
+        }
+
+        .op-button {
+            align-items: center;
+            background-color: #ffffff;
+            border-radius: 12px;
+            border: 1.5px solid #cbd5e1;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            font-family: 'Poppins', sans-serif;
+            font-size: 13.5px;
+            font-weight: 600;
+            justify-content: flex-start;
+            padding: 9px 14px;
+            transition: all 0.2s ease;
+            min-height: 42px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+            text-align: left;
+        }
+
+        .op-button:hover { 
+            background-color: #4f46e5; 
+            color: #ffffff; 
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.22);
+            transform: translateY(-1px);
+        }
+
+        .op-button:hover .katex {
+            color: #ffffff !important;
+        }
+
+        .op-tag {
+            font-size: 10px;
+            background-color: #e0e7ff;
+            color: #4338ca;
+            padding: 2px 7px;
+            border-radius: 6px;
+            margin-right: 10px;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            flex-shrink: 0;
+        }
+        .op-button:hover .op-tag {
+            background-color: #3730a3;
+            color: #ffffff;
+        }
+
+        .history-section {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px dashed #e2e8f0;
+            width: 100%;
+        }
+        .history-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 6px;
+        }
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            max-height: 75px;
+            overflow-y: auto;
+        }
+        .history-badge {
+            background: #f1f5f9;
+            color: #475569;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border: 1px solid #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container">
+        <div id="sim-id" class="sim-id-badge"></div>
+        <div class="top-bar">
+            <h2 class="slide-title">Algebra Playground</h2>
+            <div class="controls-group">
+                <button id="undo-btn" class="control-btn" onclick="undoStep()" disabled>↩ Undo</button>
+                <button class="control-btn" onclick="resetPlayground()">Start Again</button>
+            </div>
+        </div>
+
+        <p id="instruction-text" class="instructions">Click any term or factor to explore mathematically valid operations on both sides.</p>
+        
+        <div id="isolation-banner-slot"></div>
+        <div id="equation-container" class="equation-box"></div>
+        <div id="dynamic-panel" class="action-panel"></div>
+
+        <div class="history-section">
+            <div class="history-title">Step History</div>
+            <div id="history-container" class="history-list"></div>
+        </div>
+    </div>
+
+    <script>
+        function generateSimID() {
+            const d = new Date();
+            const random4 = Math.floor(1000 + Math.random() * 9000);
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            const yearLastDigit = String(d.getFullYear()).slice(-1);
+            return `${random4}${month}${day}${yearLastDigit}`;
+        }
+        document.getElementById('sim-id').innerText = "ID: " + generateSimID();
+
+        const kRender = (tex) => katex.renderToString(tex, { throwOnError: false, displayMode: false });
+
+        /*
+            PLAYGROUND STATE GRAPH: v_2^2 = v_1^2 + 2ad
+        */
+        const STATES = {
+            'init': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'v2_sq' ? 'selected' : ''}" onclick="selectItem('v2_sq')">${kRender('v_2^2')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'v1_sq' ? 'selected' : ''}" onclick="selectItem('v1_sq')">${kRender('v_1^2')}</span>
+                        <span class="sign">+</span>
+                        <span class="clickable-block ${sel === 'two_ad' ? 'selected' : ''}" onclick="selectItem('two_ad')">${kRender('2ad')}</span>
+                    </div>`,
+                actions: {
+                    'v2_sq': [
+                        { label: `Take square root (√) of both sides (Isolates v₂!)`, next: 'v2_isolated', desc: 'Took square root of both sides' },
+                        { label: `Subtract ${kRender('v_2^2')} from both sides`, next: 'zero_form', desc: 'Subtracted v₂² from both sides' }
+                    ],
+                    'v1_sq': [
+                        { label: `Subtract ${kRender('v_1^2')} from both sides`, next: 'sub_v1_sq', desc: 'Subtracted v₁² from both sides' }
+                    ],
+                    'two_ad': [
+                        { label: `Subtract ${kRender('2ad')} from both sides`, next: 'sub_2ad', desc: 'Subtracted 2ad from both sides' }
+                    ]
+                }
+            },
+
+            'v2_isolated': {
+                isolated: 'v_2',
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'v2' ? 'selected' : ''}" onclick="selectItem('v2')">${kRender('v_2')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'root_rhs' ? 'selected' : ''}" onclick="selectItem('root_rhs')">${kRender('\\sqrt{v_1^2 + 2ad}')}</span>
+                    </div>`,
+                actions: {
+                    'v2': [
+                        { label: `Square both sides`, next: 'init', desc: 'Squared both sides' }
+                    ],
+                    'root_rhs': [
+                        { label: `Square both sides`, next: 'init', desc: 'Squared both sides' }
+                    ]
+                }
+            },
+
+            'sub_2ad': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('v_2^2 - 2ad')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'v1_sq' ? 'selected' : ''}" onclick="selectItem('v1_sq')">${kRender('v_1^2')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Add ${kRender('2ad')} to both sides`, next: 'init', desc: 'Added 2ad back to both sides' }
+                    ],
+                    'v1_sq': [
+                        { label: `Take square root (√) of both sides (Isolates v₁!)`, next: 'v1_isolated', desc: 'Took square root of both sides' }
+                    ]
+                }
+            },
+
+            'v1_isolated': {
+                isolated: 'v_1',
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'root_lhs' ? 'selected' : ''}" onclick="selectItem('root_lhs')">${kRender('\\sqrt{v_2^2 - 2ad}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'v1' ? 'selected' : ''}" onclick="selectItem('v1')">${kRender('v_1')}</span>
+                    </div>`,
+                actions: {
+                    'root_lhs': [
+                        { label: `Square both sides`, next: 'sub_2ad', desc: 'Squared both sides' }
+                    ],
+                    'v1': [
+                        { label: `Square both sides`, next: 'sub_2ad', desc: 'Squared both sides' }
+                    ]
+                }
+            },
+
+            'sub_v1_sq': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('v_2^2 - v_1^2')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'rhs_2' ? 'selected' : ''}" onclick="selectItem('rhs_2')">${kRender('2')}</span>
+                        <span class="clickable-block ${sel === 'rhs_a' ? 'selected' : ''}" onclick="selectItem('rhs_a')">${kRender('a')}</span>
+                        <span class="clickable-block ${sel === 'rhs_d' ? 'selected' : ''}" onclick="selectItem('rhs_d')">${kRender('d')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Add ${kRender('v_1^2')} to both sides`, next: 'init', desc: 'Added v₁² back to both sides' }
+                    ],
+                    'rhs_2': [
+                        { label: `Divide both sides by ${kRender('2')}`, next: 'div_2', desc: 'Divided both sides by 2' },
+                        { label: `Divide both sides by ${kRender('2d')} (Isolates a!)`, next: 'a_isolated', desc: 'Divided both sides by 2d' },
+                        { label: `Divide both sides by ${kRender('2a')} (Isolates d!)`, next: 'd_isolated', desc: 'Divided both sides by 2a' }
+                    ],
+                    'rhs_a': [
+                        { label: `Divide both sides by ${kRender('a')}`, next: 'div_a', desc: 'Divided both sides by a' },
+                        { label: `Divide both sides by ${kRender('2a')} (Isolates d!)`, next: 'd_isolated', desc: 'Divided both sides by 2a' }
+                    ],
+                    'rhs_d': [
+                        { label: `Divide both sides by ${kRender('d')}`, next: 'div_d', desc: 'Divided both sides by d' },
+                        { label: `Divide both sides by ${kRender('2d')} (Isolates a!)`, next: 'a_isolated', desc: 'Divided both sides by 2d' }
+                    ]
+                }
+            },
+
+            'div_2': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('\\frac{v_2^2 - v_1^2}{2}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'rhs_a' ? 'selected' : ''}" onclick="selectItem('rhs_a')">${kRender('a')}</span>
+                        <span class="clickable-block ${sel === 'rhs_d' ? 'selected' : ''}" onclick="selectItem('rhs_d')">${kRender('d')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Multiply both sides by ${kRender('2')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2' }
+                    ],
+                    'rhs_a': [
+                        { label: `Divide both sides by ${kRender('a')} (Isolates d!)`, next: 'd_isolated', desc: 'Divided both sides by a' }
+                    ],
+                    'rhs_d': [
+                        { label: `Divide both sides by ${kRender('d')} (Isolates a!)`, next: 'a_isolated', desc: 'Divided both sides by d' }
+                    ]
+                }
+            },
+
+            'div_a': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('\\frac{v_2^2 - v_1^2}{a}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'rhs_2' ? 'selected' : ''}" onclick="selectItem('rhs_2')">${kRender('2')}</span>
+                        <span class="clickable-block ${sel === 'rhs_d' ? 'selected' : ''}" onclick="selectItem('rhs_d')">${kRender('d')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Multiply both sides by ${kRender('a')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by a' }
+                    ],
+                    'rhs_2': [
+                        { label: `Divide both sides by ${kRender('2')} (Isolates d!)`, next: 'd_isolated', desc: 'Divided both sides by 2' }
+                    ],
+                    'rhs_d': [
+                        { label: `Divide both sides by ${kRender('d')}`, next: 'div_ad', desc: 'Divided both sides by d' }
+                    ]
+                }
+            },
+
+            'div_d': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('\\frac{v_2^2 - v_1^2}{d}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'rhs_2' ? 'selected' : ''}" onclick="selectItem('rhs_2')">${kRender('2')}</span>
+                        <span class="clickable-block ${sel === 'rhs_a' ? 'selected' : ''}" onclick="selectItem('rhs_a')">${kRender('a')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Multiply both sides by ${kRender('d')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by d' }
+                    ],
+                    'rhs_2': [
+                        { label: `Divide both sides by ${kRender('2')} (Isolates a!)`, next: 'a_isolated', desc: 'Divided both sides by 2' }
+                    ],
+                    'rhs_a': [
+                        { label: `Divide both sides by ${kRender('a')}`, next: 'div_ad', desc: 'Divided both sides by a' }
+                    ]
+                }
+            },
+
+            'div_ad': {
+                isolated: null,
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('\\frac{v_2^2 - v_1^2}{ad}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'rhs' ? 'selected' : ''}" onclick="selectItem('rhs')">${kRender('2')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Multiply both sides by ${kRender('d')}`, next: 'div_a', desc: 'Multiplied both sides by d' },
+                        { label: `Multiply both sides by ${kRender('a')}`, next: 'div_d', desc: 'Multiplied both sides by a' }
+                    ],
+                    'rhs': [
+                        { label: `Divide both sides by ${kRender('2')}`, next: 'ratio_one', desc: 'Divided both sides by 2' }
+                    ]
+                }
+            },
+
+            'ratio_one': {
+                isolated: null,
+                infoType: 'ratio_insight',
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'lhs' ? 'selected' : ''}" onclick="selectItem('lhs')">${kRender('\\frac{v_2^2 - v_1^2}{2ad}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'rhs' ? 'selected' : ''}" onclick="selectItem('rhs')">${kRender('1')}</span>
+                    </div>`,
+                actions: {
+                    'lhs': [
+                        { label: `Multiply both sides by ${kRender('2ad')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2ad' }
+                    ],
+                    'rhs': [
+                        { label: `Multiply both sides by ${kRender('2ad')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2ad' }
+                    ]
+                }
+            },
+
+            'a_isolated': {
+                isolated: 'a',
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'frac' ? 'selected' : ''}" onclick="selectItem('frac')">${kRender('\\frac{v_2^2 - v_1^2}{2d}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'a' ? 'selected' : ''}" onclick="selectItem('a')">${kRender('a')}</span>
+                    </div>`,
+                actions: {
+                    'frac': [
+                        { label: `Multiply both sides by ${kRender('2d')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2d' }
+                    ],
+                    'a': [
+                        { label: `Multiply both sides by ${kRender('2d')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2d' }
+                    ]
+                }
+            },
+
+            'd_isolated': {
+                isolated: 'd',
+                infoType: null,
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'frac' ? 'selected' : ''}" onclick="selectItem('frac')">${kRender('\\frac{v_2^2 - v_1^2}{2a}')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'd' ? 'selected' : ''}" onclick="selectItem('d')">${kRender('d')}</span>
+                    </div>`,
+                actions: {
+                    'frac': [
+                        { label: `Multiply both sides by ${kRender('2a')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2a' }
+                    ],
+                    'd': [
+                        { label: `Multiply both sides by ${kRender('2a')}`, next: 'sub_v1_sq', desc: 'Multiplied both sides by 2a' }
+                    ]
+                }
+            },
+
+            // Fixed Zero-Form: routing correctly back to 2ad = v2^2 - v1^2 or v1^2 = v2^2 - 2ad
+            'zero_form': {
+                isolated: null,
+                infoType: 'zero_balance',
+                render: (sel) => `
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'zero' ? 'selected' : ''}" onclick="selectItem('zero')">${kRender('0')}</span>
+                    </div>
+                    <span class="equals">=</span>
+                    <div class="side">
+                        <span class="clickable-block ${sel === 'v1_sq' ? 'selected' : ''}" onclick="selectItem('v1_sq')">${kRender('v_1^2')}</span>
+                        <span class="sign">+</span>
+                        <span class="clickable-block ${sel === 'two_ad' ? 'selected' : ''}" onclick="selectItem('two_ad')">${kRender('2ad')}</span>
+                        <span class="sign">-</span>
+                        <span class="clickable-block ${sel === 'v2_sq' ? 'selected' : ''}" onclick="selectItem('v2_sq')">${kRender('v_2^2')}</span>
+                    </div>`,
+                actions: {
+                    'zero': [
+                        { label: `Add ${kRender('v_2^2')} to both sides`, next: 'init', desc: 'Added v₂² back to left side' }
+                    ],
+                    'v2_sq': [
+                        { label: `Add ${kRender('v_2^2')} to both sides`, next: 'init', desc: 'Added v₂² back to left side' }
+                    ],
+                    'v1_sq': [
+                        { label: `Subtract ${kRender('v_1^2')} (and simplify signs)`, next: 'sub_2ad', desc: 'Moved v₁² across: v₁² = v₂² - 2ad' }
+                    ],
+                    'two_ad': [
+                        { label: `Subtract ${kRender('2ad')} (and simplify signs)`, next: 'sub_v1_sq', desc: 'Moved 2ad across: 2ad = v₂² - v₁²' }
+                    ]
+                }
+            }
+        };
+
+        let currentStateKey = 'init';
+        let activeSelection = null;
+        let historyStack = [];
+
+        const eqContainer = document.getElementById('equation-container');
+        const panel = document.getElementById('dynamic-panel');
+        const bannerSlot = document.getElementById('isolation-banner-slot');
+        const historyContainer = document.getElementById('history-container');
+        const undoBtn = document.getElementById('undo-btn');
+
+        function renderPlayground() {
+            const state = STATES[currentStateKey] || STATES['init'];
+
+            // Render Equation
+            eqContainer.innerHTML = state.render(activeSelection);
+
+            // Handle Isolation & Discovery Banners
+            if (state.isolated) {
+                bannerSlot.innerHTML = `
+                    <div class="banner isolated-banner">
+                        <span>🎉</span> Variable ${kRender(state.isolated)} is completely isolated! Feel free to keep manipulating.
+                    </div>`;
+            } else if (state.infoType === 'zero_balance') {
+                bannerSlot.innerHTML = `
+                    <div class="banner info-banner">
+                        💡 <strong>Zero-Balance State:</strong> Setting an equation to 0 is common when analyzing conservation laws or kinetic energy differences!
+                    </div>`;
+            } else if (state.infoType === 'ratio_insight') {
+                bannerSlot.innerHTML = `
+                    <div class="banner info-banner">
+                        💡 <strong>Ratio of 1:</strong> You have expressed the ratio of kinetic work to displacement acceleration!
+                    </div>`;
+            } else {
+                bannerSlot.innerHTML = '';
+            }
+
+            // Render Action Toolkit
+            if (!activeSelection || !state.actions[activeSelection]) {
+                panel.innerHTML = `
+                    <div class="action-label">CHOOSE A PART OF THE EQUATION TO OPERATE ON</div>
+                    <p style="font-size: 13px; color: #64748b; text-align: center; margin: 0; line-height: 1.5;">
+                        Click on any term, factor, or radical above to explore mathematically valid operations on both sides.
+                    </p>`;
+            } else {
+                const availableMoves = state.actions[activeSelection];
+                let movesHtml = availableMoves.map(move => `
+                    <button class="op-button" onclick="executeMove('${move.next}', '${escapeHtml(move.desc)}')">
+                        <span class="op-tag">Apply</span>
+                        <span>${move.label}</span>
+                    </button>
+                `).join('');
+
+                panel.innerHTML = `
+                    <div class="action-label">AVAILABLE ALGEBRAIC OPERATIONS</div>
+                    <div class="choices-container">
+                        ${movesHtml}
+                    </div>`;
+            }
+
+            undoBtn.disabled = historyStack.length === 0;
+            renderHistory();
+        }
+
+        function selectItem(itemId) {
+            activeSelection = itemId;
+            renderPlayground();
+        }
+
+        function executeMove(nextStateKey, description) {
+            if (!STATES[nextStateKey]) return;
+
+            historyStack.push({
+                stateKey: currentStateKey,
+                description: description
+            });
+
+            currentStateKey = nextStateKey;
+            activeSelection = null;
+            renderPlayground();
+        }
+
+        function undoStep() {
+            if (historyStack.length === 0) return;
+            const lastStep = historyStack.pop();
+            currentStateKey = lastStep.stateKey;
+            activeSelection = null;
+            renderPlayground();
+        }
+
+        function resetPlayground() {
+            currentStateKey = 'init';
+            activeSelection = null;
+            historyStack = [];
+            renderPlayground();
+        }
+
+        function renderHistory() {
+            if (historyStack.length === 0) {
+                historyContainer.innerHTML = `<span style="font-size: 11.5px; color: #94a3b8;">Start: v₂² = v₁² + 2ad</span>`;
+                return;
+            }
+
+            historyContainer.innerHTML = historyStack.map((step, idx) => `
+                <span class="history-badge">${idx + 1}. ${step.description}</span>
+            `).join('');
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'");
+        }
+
+        renderPlayground();
+    </script>
+</body>
+</html>            max-width: 760px;
             width: 100%;
             border: 1px solid #e2e8f0;
         }
